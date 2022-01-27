@@ -19,8 +19,15 @@ class _MyAppState extends State<MyApp> {
 
   String _userInput = "";
   double _finalBalance = 0;
-  int taxes = 0;
+  int taxes = 22;
+  String? error;
   bool _clicked= false;
+
+  onTaxChange(int value){
+    setState(() {
+      taxes = value;
+    });
+  }
   @override
   Widget build(BuildContext context){
 
@@ -38,11 +45,14 @@ class _MyAppState extends State<MyApp> {
              children: [
                Text("Inserisci importo"),
                 TextField(
-                 decoration: new InputDecoration(labelText: "Inserisci soldi"),
+                 decoration: new InputDecoration(
+                     errorText: error,
+                     labelText: "Inserisci soldi"),
                    keyboardType: TextInputType.phone,
                  onChanged: (String text){
                    setState ((){
-                     _userInput = text;
+                     error = (double.tryParse(text) == null) ?"Inserisci un numero":null;
+                     _userInput = (double.tryParse(text) != null) ? text : "0";
                    });
                  }),
 
@@ -50,31 +60,23 @@ class _MyAppState extends State<MyApp> {
                  children: [
                    Container(
                      margin: EdgeInsets.only(right:15),
-                     child:CustomButton("22",(){
-                       setState(() {
-                         taxes = 22;
-                         CustomButton("22",null);
-                       });
-                     }),
+                     child:CustomButton(CustomButton.LexuryTax,(){
+                      onTaxChange(22);
+                      },taxes == 22),
+                    ),
 
+
+                   Container(
+                     margin: EdgeInsets.only(right:15),
+                     child: CustomButton(CustomButton.FoodTax,(){
+                       onTaxChange(10);
+                     },taxes == 10),
                    ),
                    Container(
                      margin: EdgeInsets.only(right:15),
-                     child: CustomButton("10",(){
-                           setState(() {
-                             taxes = 10;
-                           });
-
-                     }),
-                   ),
-                   Container(
-                     margin: EdgeInsets.only(right:15),
-                     child: CustomButton("4",(){
-                           setState(() {
-                             taxes = 4;
-                           });
-
-                     }),
+                     child: CustomButton(CustomButton.AgriTax,(){
+                       onTaxChange(4);
+                     },taxes == 4),
                    ),
 
                  ],
@@ -101,7 +103,7 @@ class _MyAppState extends State<MyApp> {
 
                                    }
                                    });
-                                 })),
+                                 },true)),
                            ),
 ]
                        )
@@ -120,21 +122,59 @@ class _MyAppState extends State<MyApp> {
 }
 
 class CustomButton extends StatelessWidget{
-    String testo;
+    static const String LexuryTax="22";
+    static const String FoodTax="10";
+    static const String AgriTax="4";
+
+    String rate;
     Function()? onButtonPressed;
-    CustomButton(this.testo,this.onButtonPressed);
+    bool enabled;
+    CustomButton(this.rate,this.onButtonPressed,this.enabled);
 
 
 
     @override
     Widget build(BuildContext ctx){
       return Container(
-        child:ElevatedButton(
-          onPressed: onButtonPressed,child: Text("$testo%"),
+        child:TextButton(
+          style: _getStateStyle(),
+          child:Text(rate,
+          style: _getTextStyle(),),
+          onPressed: onButtonPressed,
         )
       );
     }
     changeState(int? value){
       return value;
     }
+    ButtonStyle _getStateStyle(){
+      return TextButton.styleFrom(
+        backgroundColor: enabled? Colors.blue : Colors.grey,
+      );
+    }
+
+    TextStyle _getTextStyle(){
+      return TextStyle(
+        color:Colors.white,
+      );
+    }
+}
+class CalculateTaxesButton extends StatelessWidget{
+  String text=" ";
+  Function()? onButtonPressed;
+
+  Widget build(BuildContext ctx){
+    return Container(
+        child:TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.blue,
+          ),
+          child:Text(text,
+            style: TextStyle(
+              color: Colors.white,
+            )),
+          onPressed: onButtonPressed,
+        )
+    );
+  }
 }
